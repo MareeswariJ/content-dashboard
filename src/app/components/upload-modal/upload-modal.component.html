@@ -1,0 +1,156 @@
+<div class="modal-overlay" (click)="onClose()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Upload Video</h2>
+            <button class="close-btn" (click)="onClose()" [disabled]="isUploading()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            @if (!selectedFile) {
+            <!-- Drop Zone -->
+            <div class="drop-zone" [class.drag-over]="isDragOver" (dragover)="onDragOver($event)"
+                (dragleave)="onDragLeave()" (drop)="onDrop($event)">
+                <div class="drop-zone-content">
+                    <div class="upload-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                    </div>
+                    <p class="drop-text">Drag and drop your video here</p>
+                    <p class="or-text">or</p>
+                    <label class="browse-btn">
+                        <input type="file" accept="video/*" (change)="onFileSelect($event)" hidden />
+                        Browse Files
+                    </label>
+                    <p class="supported-text">Supported formats: MP4, MOV, AVI, MKV</p>
+                </div>
+            </div>
+            } @else {
+            <!-- File Selected -->
+            <div class="file-preview">
+                <div class="file-info">
+                    <div class="file-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+                            <line x1="7" y1="2" x2="7" y2="22" />
+                            <line x1="17" y1="2" x2="17" y2="22" />
+                            <line x1="2" y1="12" x2="22" y2="12" />
+                        </svg>
+                    </div>
+                    <div class="file-details">
+                        <span class="file-name">{{ selectedFile.name }}</span>
+                        <span class="file-size">{{ formatFileSize(selectedFile.size) }}</span>
+                    </div>
+                    @if (!isUploading()) {
+                    <button class="remove-file-btn" (click)="removeFile()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+                    }
+                </div>
+
+                @if (isUploading() || uploadState() === 'success') {
+                <!-- Progress Bar -->
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <span class="progress-label">
+                            @if (uploadState() === 'success') {
+                            Upload Complete!
+                            } @else if (uploadState() === 'error') {
+                            {{ errorMessage() }}
+                            } @else if (isFinalizing()) {
+                            Finalizing...
+                            } @else {
+                            Uploading...
+                            }
+                        </span>
+                        <span class="progress-percentage">{{ uploadProgress() }}%</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" [class.success]="uploadState() === 'success'"
+                            [class.error]="uploadState() === 'error'" [style.width.%]="uploadProgress()"></div>
+                    </div>
+                </div>
+                }
+            </div>
+
+            <!-- Video Details Form -->
+            @if (!isUploading() && uploadState() !== 'success') {
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="title">Video Title</label>
+                    <input type="text" id="title" [(ngModel)]="videoTitle" placeholder="Enter video title" />
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" [(ngModel)]="videoCategory">
+                            @for (cat of categories; track cat) {
+                            <option [value]="cat">{{ cat }}</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="duration">Duration</label>
+                        <input type="text" id="duration" [value]="videoDuration" readonly class="readonly-input" />
+                    </div>
+                </div>
+
+                <!-- Tags Input -->
+                <div class="form-group">
+                    <label for="tags">Tags</label>
+                    <div class="tags-input-container">
+                        <div class="tags-list">
+                            @for (tag of videoTags; track tag) {
+                            <span class="tag">
+                                {{ tag }}
+                                <button type="button" class="remove-tag" (click)="removeTag(tag)">×</button>
+                            </span>
+                            }
+                        </div>
+                        <input type="text" id="tags" [(ngModel)]="tagInput" placeholder="Type and press Enter to add"
+                            (keydown)="addTagOnEnter($event)" />
+                    </div>
+                </div>
+            </div>
+            }
+            }
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-cancel" (click)="onClose()" [disabled]="isUploading()">
+                Cancel
+            </button>
+            <button class="btn-upload" (click)="startUpload()"
+                [disabled]="!selectedFile || isUploading() || uploadState() === 'success'">
+                @if (isUploading()) {
+                <span class="spinner"></span>
+                {{ isFinalizing() ? 'Finalizing...' : 'Uploading...' }}
+                } @else if (uploadState() === 'success') {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Done
+                } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                Upload Video
+                }
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,75 @@
+<div class="modal-overlay" (click)="onClose()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Edit Video</h2>
+            <button class="close-btn" (click)="onClose()" [disabled]="isSaving">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <!-- Video Preview -->
+            <div class="video-preview">
+                <video [src]="video.thumbnail" class="preview-video"></video>
+                <div class="video-info">
+                    <span class="duration">{{ video.duration }}</span>
+                    <span class="size">{{ video.size }}</span>
+                </div>
+            </div>
+
+            <!-- Edit Form -->
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="title">Video Title</label>
+                    <input type="text" id="title" [(ngModel)]="editTitle" placeholder="Enter video title" />
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" [(ngModel)]="editCategory">
+                        @for (cat of categories; track cat) {
+                        <option [value]="cat">{{ cat }}</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Tags Input -->
+                <div class="form-group">
+                    <label for="tags">Tags</label>
+                    <div class="tags-input-container">
+                        <div class="tags-list">
+                            @for (tag of editTags; track tag) {
+                            <span class="tag">
+                                {{ tag }}
+                                <button type="button" class="remove-tag" (click)="removeTag(tag)">×</button>
+                            </span>
+                            }
+                        </div>
+                        <input type="text" id="tags" [(ngModel)]="tagInput" placeholder="Type and press Enter"
+                            (keydown)="addTagOnEnter($event)" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-cancel" (click)="onClose()" [disabled]="isSaving">
+                Cancel
+            </button>
+            <button class="btn-save" (click)="saveChanges()" [disabled]="isSaving">
+                @if (isSaving) {
+                <span class="spinner"></span>
+                Saving...
+                } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Save Changes
+                }
+            </button>
+        </div>
+    </div>
+</div>

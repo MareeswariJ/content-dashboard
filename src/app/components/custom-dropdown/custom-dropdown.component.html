@@ -1,0 +1,15 @@
+<div class="custom-dropdown" [class.open]="isOpen">
+    <button type="button" class="dropdown-trigger" (click)="toggle()">
+        <span class="dropdown-label" [class.placeholder]="!value">{{ selectedLabel }}</span>
+        <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+    </button>
+
+    <div class="dropdown-menu" *ngIf="isOpen">
+        <button type="button" class="dropdown-option" *ngFor="let option of options"
+            [class.selected]="option.value === value" (click)="selectOption(option)">
+            {{ option.label }}
+        </button>
+    </div>
+</div>

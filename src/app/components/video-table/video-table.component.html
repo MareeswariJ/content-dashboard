@@ -1,0 +1,272 @@
+<div class="table-container">
+    @if (loading) {
+    <div class="loading-overlay">
+        <div class="spinner"></div>
+        <span>Loading videos...</span>
+    </div>
+    }
+
+    <table class="video-table">
+        <thead>
+            <tr>
+                @if (selectMultiple) {
+                <th class="col-checkbox">
+                    <input type="checkbox" [(ngModel)]="selectAll" (change)="toggleSelectAll()" class="checkbox" />
+                </th>
+                }
+                <th class="col-sno">S.no</th>
+                <th class="col-about">About Video</th>
+                <th class="col-tags">Tags Used</th>
+                <th class="col-size">Size</th>
+                <th class="col-status">Status</th>
+                <th class="col-date">Uploaded Date</th>
+                <th class="col-converted">Converted</th>
+                <th class="col-action">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (video of videos; track video.id; let i = $index) {
+            <tr [class.selected]="isSelected(video)" [class.draft-row]="!video.converted">
+                @if (selectMultiple) {
+                <td class="col-checkbox">
+                    <input type="checkbox" [checked]="isSelected(video)" (change)="toggleSelect(video)"
+                        class="checkbox" />
+                </td>
+                }
+                <td class="col-sno" data-label="S.No">{{ i + 1 }}</td>
+                <td class="col-about">
+                    <div class="video-info">
+                        <!-- Clickable video thumbnail -->
+                        <div class="thumbnail-wrapper" (click)="playVideo(video)">
+                            <video [src]="video.thumbnail" class="thumbnail" preload="metadata"></video>
+                            <div class="play-overlay">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <polygon points="5 3 19 12 5 21 5 3" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="video-details">
+                            <span class="video-title">{{ video.title }}</span>
+                            <div class="video-meta">
+                                <span class="duration">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <polyline points="12 6 12 12 16 14" />
+                                    </svg>
+                                    {{ video.duration }}
+                                </span>
+                                <span class="category">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path
+                                            d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                                    </svg>
+                                    {{ video.category }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <!-- Show data only for converted videos, empty for drafts -->
+                <td class="col-tags" data-label="Tags">@if (video.converted) { {{ video.tagsUsed }} }</td>
+                <td class="col-size" data-label="Size">@if (video.converted) { {{ video.size }} }</td>
+                <td class="col-status">
+                    @if (video.converted) {
+                    <button class="status-toggle" [class.visible]="video.status === 'visible'"
+                        [class.hidden]="video.status === 'hidden'" (click)="onToggleStatus(video)">
+                        <span class="toggle-track">
+                            <span class="toggle-thumb"></span>
+                        </span>
+                        <span class="status-text">{{ video.status === 'visible' ? 'Visible' : 'Hidden' }}</span>
+                    </button>
+                    }
+                </td>
+                <td class="col-date" data-label="Uploaded">@if (video.converted) { {{ formatDate(video.uploadedDate) }}
+                    }</td>
+                <td class="col-converted">
+                    @if (video.converted) {
+                    <div class="converted-checkbox" (click)="onToggleConverted(video)" [class.checked]="video.converted"
+                        title="Click to toggle (Demo)">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                        </svg>
+                    </div>
+                    } @else {
+                    <button class="btn-view-draft" (click)="onViewDraft(video)" title="View Draft">
+                        View Draft
+                    </button>
+                    }
+                </td>
+                <td class="col-action">
+                    <div class="action-buttons">
+                        <button class="btn-action edit" (click)="onEdit(video)" title="Edit video">
+                            <!-- Premium edit icon - pencil with sparkle effect -->
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M13.26 3.59997L5.04997 12.29C4.73997 12.62 4.43997 13.27 4.37997 13.72L4.00997 16.96C3.87997 18.13 4.71997 18.93 5.87997 18.73L9.09997 18.18C9.54997 18.1 10.18 17.77 10.49 17.43L18.7 8.73997C20.12 7.23997 20.76 5.52997 18.55 3.43997C16.35 1.36997 14.68 2.09997 13.26 3.59997Z"
+                                    stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M11.89 5.05005C12.32 7.81005 14.56 9.92005 17.34 10.2" stroke="currentColor"
+                                    stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M3 22H21" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                        <button class="btn-action delete" (click)="onDelete(video)" title="Delete video">
+                            <!-- Premium trash icon - detailed with lid animation support -->
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M21 5.98047C17.67 5.65047 14.32 5.48047 10.98 5.48047C9 5.48047 7.02 5.58047 5.04 5.78047L3 5.98047"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M8.5 4.97L8.72 3.66C8.88 2.71 9 2 10.69 2H13.31C15 2 15.13 2.75 15.28 3.67L15.5 4.97"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M18.85 9.14001L18.2 19.21C18.09 20.78 18 22 15.21 22H8.79C6 22 5.91 20.78 5.8 19.21L5.15 9.14001"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M10.33 16.5H13.66" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M9.5 12.5H14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            } @empty {
+            <tr>
+                <td colspan="9" class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+                        <line x1="7" y1="2" x2="7" y2="22" />
+                        <line x1="17" y1="2" x2="17" y2="22" />
+                        <line x1="2" y1="12" x2="22" y2="12" />
+                        <line x1="2" y1="7" x2="7" y2="7" />
+                        <line x1="2" y1="17" x2="7" y2="17" />
+                        <line x1="17" y1="17" x2="22" y2="17" />
+                        <line x1="17" y1="7" x2="22" y2="7" />
+                    </svg>
+                    <span>No videos found</span>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Video Player Modal -->
+@if (showVideoPlayer) {
+<div class="video-player-modal" (click)="closeVideoPlayer()">
+    <div class="video-player-content" (click)="$event.stopPropagation()">
+        <button class="close-player" (click)="closeVideoPlayer()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+        </button>
+        <video [src]="currentVideoUrl" controls autoplay class="video-player"></video>
+    </div>
+</div>
+}
+
+<!-- Delete Confirmation Modal -->
+@if (showDeleteModal) {
+<div class="delete-modal-overlay" (click)="closeDeleteModal()">
+    <div class="delete-modal" (click)="$event.stopPropagation()">
+        <div class="delete-modal-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+        </div>
+        <h3 class="delete-modal-title">Are you sure you want to delete?</h3>
+        <p class="delete-modal-message">This action cannot be undone. The video "{{ videoToDelete?.title }}" will be
+            permanently deleted.</p>
+        <div class="delete-modal-actions">
+            <button class="btn-cancel" (click)="closeDeleteModal()">Cancel</button>
+            <button class="btn-delete" (click)="confirmDelete()">Delete</button>
+        </div>
+    </div>
+</div>
+}
+
+<!-- View Draft Modal -->
+@if (showDraftModal) {
+<div class="draft-modal-overlay" (click)="closeDraftModal()">
+    <div class="draft-modal" (click)="$event.stopPropagation()">
+        <div class="draft-modal-header">
+            <h2>Draft Preview</h2>
+            <button class="close-draft-modal" (click)="closeDraftModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+        <div class="draft-modal-content">
+            <div class="draft-video-player">
+                <video [src]="draftVideo?.thumbnail" controls class="draft-video"></video>
+            </div>
+            <div class="draft-info">
+                <div class="draft-info-row">
+                    <span class="draft-label">Title:</span>
+                    <span class="draft-value">{{ draftVideo?.title }}</span>
+                </div>
+                <div class="draft-info-row">
+                    <span class="draft-label">Category:</span>
+                    <span class="draft-value">{{ draftVideo?.category }}</span>
+                </div>
+                <div class="draft-info-row">
+                    <span class="draft-label">Duration:</span>
+                    <span class="draft-value">{{ draftVideo?.duration }}</span>
+                </div>
+                <div class="draft-info-row">
+                    <span class="draft-label">Size:</span>
+                    <span class="draft-value">{{ draftVideo?.size }}</span>
+                </div>
+                <div class="draft-info-row">
+                    <span class="draft-label">Status:</span>
+                    <span class="draft-value draft-status" [class.visible]="draftVideo?.status === 'visible'"
+                        [class.hidden]="draftVideo?.status === 'hidden'">
+                        {{ draftVideo?.status === 'visible' ? 'Visible' : 'Hidden' }}
+                    </span>
+                </div>
+                <div class="draft-info-row">
+                    <span class="draft-label">Uploaded:</span>
+                    <span class="draft-value">{{ draftVideo ? formatDate(draftVideo.uploadedDate) : '' }}</span>
+                </div>
+                @if (draftVideo && draftVideo.tags && draftVideo.tags.length > 0) {
+                <div class="draft-info-row">
+                    <span class="draft-label">Tags:</span>
+                    <div class="draft-tags">
+                        @for (tag of draftVideo!.tags; track tag) {
+                        <span class="draft-tag">{{ tag }}</span>
+                        }
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+        <div class="draft-modal-actions">
+            <button class="btn-draft-edit" (click)="onEditFromDraft()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+                Edit Draft
+            </button>
+            <button class="btn-draft-convert" (click)="onConvertDraft()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Mark as Converted
+            </button>
+        </div>
+    </div>
+</div>
+}

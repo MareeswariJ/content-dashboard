@@ -1,0 +1,15 @@
+<div class="app-layout">
+  <!-- Mobile Menu Toggle Button -->
+  <button class="menu-toggle" (click)="toggleSidebar()" [class.active]="sidebarOpen">
+    <span></span>
+  </button>
+
+  <!-- Sidebar Overlay for Mobile -->
+  <div class="sidebar-overlay" [class.active]="sidebarOpen" (click)="closeSidebar()"></div>
+
+  <app-sidebar [class.open]="sidebarOpen"></app-sidebar>
+  <div class="main-content">
+    <app-header (uploadClick)="onUploadClick()"></app-header>
+    <app-content-upload></app-content-upload>
+  </div>
+</div>

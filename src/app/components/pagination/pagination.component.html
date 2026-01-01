@@ -1,0 +1,29 @@
+<div class="pagination">
+    <div class="pagination-controls">
+        <button class="nav-btn prev" [disabled]="currentPage === 1" (click)="previousPage()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6" />
+            </svg>
+        </button>
+
+        @for (page of visiblePages; track $index) {
+        @if (page === '...') {
+        <span class="ellipsis">...</span>
+        } @else {
+        <button class="page-btn" [class.active]="page === currentPage" (click)="goToPage(page)">
+            {{ page }}
+        </button>
+        }
+        }
+
+        <button class="nav-btn next" [disabled]="currentPage === totalPages" (click)="nextPage()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="results-count">
+        {{ totalResults }} Results
+    </div>
+</div>

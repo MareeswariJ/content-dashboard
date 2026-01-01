@@ -1,0 +1,253 @@
+:host {
+  display: block;
+}
+
+.sidebar {
+  width: 220px;
+  min-height: 100vh;
+  height: 100%;
+  background: #000000;
+  color: #a0a3b1;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden; // Contain scrollable areas
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  min-height: 91px;
+  box-sizing: border-box;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0; // Prevent shrinking
+
+  .logo-image {
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .logo-text {
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 2px;
+  }
+}
+
+.nav-menu {
+  padding: 16px 0;
+  flex: 1;
+  overflow-y: auto; // Allow scrolling
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.nav-section-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #6b7280;
+  padding: 16px 24px 8px;
+  margin-top: 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  color: #a0a3b1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+
+  &:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &.active {
+    color: white;
+    background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+    border-radius: 0 24px 24px 0;
+    margin-right: 16px;
+  }
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.arrow-icon {
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  transition: transform 0.2s ease;
+
+  &.rotated {
+    transform: rotate(180deg);
+  }
+}
+
+.nav-item-group {
+  .nav-item.active {
+    border-radius: 0;
+    margin-right: 0;
+    background: #252836;
+    color: white;
+
+    .arrow-icon {
+      color: #3b82f6;
+    }
+  }
+}
+
+.sub-menu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: transparent;
+  margin-left: 35px;
+  padding-left: 0;
+
+  &.expanded {
+    max-height: 200px;
+  }
+}
+
+.sub-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px 10px 24px;
+  color: #6b7280;
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+
+  // Curved branch line (vertical + curved corner)
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 16px;
+    height: 50%;
+    border-left: 2px solid #3b4252;
+    border-bottom: 2px solid #3b4252;
+    border-bottom-left-radius: 10px;
+  }
+
+  // Vertical line extension below each item
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    bottom: -10px;
+    width: 2px;
+    background: #3b4252;
+  }
+
+  // Hide the bottom line for the last item
+  &:last-child::after {
+    display: none;
+  }
+
+  &:hover {
+    color: #9ca3af;
+  }
+
+  &.active {
+    color: white;
+    background: #3b82f6;
+    border-radius: 6px;
+    margin: 4px 16px 4px 20px;
+    padding: 8px 16px;
+
+    &::before {
+      left: -20px;
+      width: 16px;
+    }
+
+    &::after {
+      left: -20px;
+    }
+
+    &:last-child::after {
+      display: none;
+    }
+  }
+}
+
+// Responsive styles
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .logo {
+    padding: 16px 20px;
+
+    .logo-text {
+      font-size: 18px;
+    }
+  }
+
+  .nav-item {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+
+  .sub-item {
+    padding: 8px 20px 8px 48px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  :host {
+    position: fixed;
+    left: -220px;
+    top: 0;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    width: 220px;
+
+    &.open {
+      left: 0;
+    }
+  }
+
+  .sidebar {
+    width: 100%;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+  }
+}

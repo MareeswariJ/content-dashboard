@@ -1,0 +1,162 @@
+<div class="content-upload-page">
+    <!-- Page Header with Title and Actions -->
+    <div class="page-header">
+        <h1 class="page-title">Content Upload</h1>
+        <div class="page-actions">
+            <button class="btn-export" (click)="onExportCSV()">
+                <span>Export</span>
+            </button>
+            <button class="btn-upload" (click)="openUploadModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                <span>Upload Video</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabs and Search -->
+    <div class="tabs-section">
+        <div class="tabs">
+            @for (tab of tabs; track tab.id) {
+            <button class="tab-btn" [class.active]="activeTab() === tab.id" (click)="setActiveTab(tab.id)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    @switch (tab.icon) {
+                    @case ('video') {
+                    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+                    <line x1="7" y1="2" x2="7" y2="22" />
+                    <line x1="17" y1="2" x2="17" y2="22" />
+                    <line x1="2" y1="12" x2="22" y2="12" />
+                    }
+                    @case ('audio') {
+                    <path d="M9 18V5l12-2v13" />
+                    <circle cx="6" cy="18" r="3" />
+                    <circle cx="18" cy="16" r="3" />
+                    }
+                    @case ('image') {
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21 15 16 10 5 21" />
+                    }
+                    }
+                </svg>
+                <span>{{ tab.label }}</span>
+            </button>
+            }
+        </div>
+
+        <div class="search-filters">
+            <div class="search-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                </svg>
+                <input type="text" placeholder="Search..." [ngModel]="searchQuery()"
+                    (ngModelChange)="searchQuery.set($event)" />
+            </div>
+
+            <app-custom-dropdown class="visibility-dropdown" [options]="visibilityOptions"
+                [value]="selectedVisibility()" (valueChange)="selectedVisibility.set($event)" placeholder="Visibility">
+            </app-custom-dropdown>
+        </div>
+    </div>
+
+    <!-- Filters Row -->
+    <div class="filters-row">
+        <div class="filter-group">
+            <app-custom-dropdown [options]="tagOptions()" [value]="selectedTags()"
+                (valueChange)="selectedTags.set($event)" placeholder="Tags">
+            </app-custom-dropdown>
+
+            <app-custom-dropdown [options]="contentTypeOptions" [value]="selectedContentType()"
+                (valueChange)="selectedContentType.set($event)" placeholder="Content Type">
+            </app-custom-dropdown>
+
+            <app-custom-dropdown [options]="dateRangeOptions" [value]="selectedDateRange()"
+                (valueChange)="selectedDateRange.set($event)" placeholder="Last Month">
+            </app-custom-dropdown>
+
+            <div class="date-picker" (click)="dateInput.showPicker()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                <input #dateInput type="date" class="date-input" [ngModel]="selectedSpecificDate()"
+                    (ngModelChange)="onDateSelected($event)" />
+            </div>
+
+            <label class="select-multiple">
+                <span>Select Multiple</span>
+                <input type="checkbox" [ngModel]="selectMultiple()" (ngModelChange)="selectMultiple.set($event)" />
+                <span class="checkmark"></span>
+            </label>
+
+
+        </div>
+    </div>
+
+    <!-- Selection Bar -->
+    @if (selectedIds().length > 0) {
+    <div class="selection-bar">
+        <span class="selection-count">{{ selectedIds().length }} items selected</span>
+        <div class="selection-actions">
+            <button class="btn-delete" (click)="onDeleteSelected()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+                Delete
+            </button>
+            <button class="btn-visible-all" (click)="onMakeVisibleAll()">
+                <span class="toggle-icon"></span>
+                Visible all
+            </button>
+        </div>
+    </div>
+    }
+
+    <!-- Video Table -->
+    <app-video-table [videos]="paginatedVideos()" [loading]="loading()" [selectMultiple]="selectMultiple()"
+        (toggleStatus)="onToggleStatus($event)" (toggleConverted)="onToggleConverted($event)"
+        (editVideo)="onEditVideo($event)" (deleteVideo)="onDeleteVideo($event)"
+        (selectionChange)="onSelectionChange($event)"></app-video-table>
+
+    <!-- Pagination -->
+    <app-pagination [currentPage]="currentPage()" [totalPages]="totalPages()" [totalResults]="videos().length"
+        (pageChange)="onPageChange($event)"></app-pagination>
+</div>
+
+<!-- Upload Modal -->
+@if (showUploadModal()) {
+<app-upload-modal (close)="closeUploadModal()" (uploadComplete)="onUploadComplete()"></app-upload-modal>
+}
+
+<!-- Edit Modal -->
+@if (showEditModal() && editingVideo()) {
+<app-edit-video-modal [video]="editingVideo()!" (close)="closeEditModal()"
+    (saved)="onEditSaved()"></app-edit-video-modal>
+}
+
+<!-- Delete Confirmation Modal -->
+@if (showDeleteModal()) {
+<div class="delete-modal-overlay" (click)="closeDeleteModal()">
+    <div class="delete-modal" (click)="$event.stopPropagation()">
+        <div class="delete-modal-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+        </div>
+        <h3 class="delete-modal-title">Delete {{ selectedIds().length }} Videos?</h3>
+        <p class="delete-modal-message">Are you sure you want to delete these videos? This action cannot be undone.</p>
+        <div class="delete-modal-actions">
+            <button class="btn-cancel" (click)="closeDeleteModal()">Cancel</button>
+            <button class="btn-delete-confirm" (click)="confirmDeleteSelected()">Delete</button>
+        </div>
+    </div>
+</div>
+}
