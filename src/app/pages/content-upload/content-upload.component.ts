@@ -188,11 +188,13 @@ export class ContentUploadComponent implements OnInit {
     ngOnDestroy() {
         this.subscription?.unsubscribe();
     }
-
     loadVideos() {
-        if (this.subscription) return; // Already subscribed
-
         this.loading.set(true);
+
+        // Unsubscribe from old subscription if it exists
+        if (this.subscription) {
+            this.subscription.unsubscribe();
+        }
 
         // Timeout fallback - stop loading after 5 seconds even if no data
         setTimeout(() => {
@@ -214,6 +216,7 @@ export class ContentUploadComponent implements OnInit {
             }
         });
     }
+
 
 
 

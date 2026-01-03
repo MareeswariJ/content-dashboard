@@ -118,6 +118,8 @@ export class VideoService {
 
     // Background save - doesn't block the UI
     private async saveToFirestoreBackground(file: File, metadata: Partial<Video>, downloadUrl: string): Promise<void> {
+        console.log('🔵 Starting Firestore save...');
+
         const videoData = {
             title: metadata.title || file.name.replace(/\.[^/.]+$/, ''),
             duration: metadata.duration || '00:00:00',
@@ -131,16 +133,29 @@ export class VideoService {
             converted: false
         };
 
+        console.log('🔵 Video data to save:', videoData);
+
         try {
-            await addDoc(this.videosCollection, videoData);
+            // Add timeout wrapper
+            const savePromise = addDoc(this.videosCollection, videoData);
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Firestore write timeout')), 10000)
+            );
+
+            await Promise.race([savePromise, timeoutPromise]);
             console.log('✅ Video saved to Firestore');
-            // Refresh the list after save
-            setTimeout(() => this.loadVideos(), 1000);
-        } catch (error) {
-            console.error('❌ Failed to save to Firestore:', error);
-            // Even if Firestore fails, video is in Storage
+
+            // Reload videos immediately
+            this.loadVideos();
+        } catch (error: any) {
+            console.error('❌ Failed to save to Firestore:');
+            console.error('Error message:', error?.message);
+            console.error('Error code:', error?.code);
+            console.error('Full error:', error);
         }
     }
+
+
 
     async updateVideo(id: string, data: Partial<Video>): Promise<void> {
         await updateDoc(doc(db, 'videos', id), data as any);
